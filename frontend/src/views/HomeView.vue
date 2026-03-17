@@ -82,7 +82,8 @@ function toEdit(item: RelatedGoodsItem) {
   router.push({
     name: 'goods-edit',
     params: { id: String(item.goods_id) },
-    state: { goodsItem: item },
+    // HistoryStateValue 制約のため JSON 文字列で渡す
+    state: { goodsItem: JSON.stringify(item) },
   })
 }
 

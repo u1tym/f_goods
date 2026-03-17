@@ -46,8 +46,11 @@ onMounted(async () => {
     artistOptions.value = artistList
 
     if (!isNew.value && goodsId.value) {
-      const stateItem = (history.state as { goodsItem?: RelatedGoodsItem })
-        ?.goodsItem
+      const raw = (history.state as { goodsItem?: unknown })?.goodsItem
+      const stateItem: RelatedGoodsItem | undefined =
+        typeof raw === 'string'
+          ? (JSON.parse(raw) as RelatedGoodsItem)
+          : (raw as RelatedGoodsItem | undefined)
       const fromList =
         stateItem &&
         stateItem.media_id != null &&
