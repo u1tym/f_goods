@@ -1,0 +1,11 @@
+UIを変更して。
+
+UIは、Personのプルダウン、Artistのプルダウン、Mediaのプルダウンが出ている状態にして。
+最初は、Personだけが選べて、ArtistとMediaは非活性。Personを選択すると、Artistが選択できるようになる。
+Artistを選択すると、Mediaが選択できるようになる。
+
+全部途中で、Personを変えると、ArtistとMediaは初期状態に戻ったあと、選択されたPersonに応じて、前記のように振る舞う。
+
+新規追加はいつでも行える。
+
+
