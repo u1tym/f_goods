@@ -41,13 +41,24 @@ export const useGoodsStore = defineStore('goods', () => {
       selectedMediaId.value !== undefined
   )
 
-  /** 表示用 goods（「すべて」でなければ artist 名でフィルタ） */
+  /** 表示用 goods（「すべて」でなければ artist 名でフィルタし、リリース日降順にソート） */
   const displayGoods = computed(() => {
     const aid = selectedArtistId.value
-    if (aid == null || aid === undefined) return relatedGoods.value
-    const artist = relatedArtists.value.find((a) => a.id === aid)
-    if (!artist) return relatedGoods.value
-    return relatedGoods.value.filter((g) => g.artist_name === artist.name)
+    const base =
+      aid == null || aid === undefined
+        ? relatedGoods.value
+        : (() => {
+            const artist = relatedArtists.value.find((a) => a.id === aid)
+            if (!artist) return relatedGoods.value
+            return relatedGoods.value.filter((g) => g.artist_name === artist.name)
+          })()
+
+    return [...base].sort((a, b) => {
+      const ad = a.release_date ?? ''
+      const bd = b.release_date ?? ''
+      if (ad === bd) return 0
+      return ad > bd ? -1 : 1
+    })
   })
 
   async function fetchPersons() {

@@ -96,7 +96,7 @@ function toNew() {
     <h1 class="title">Goods管理</h1>
 
     <div class="filters">
-      <label class="field">
+      <div class="field row">
         <span class="label">Person</span>
         <select
           v-model="personModel"
@@ -112,8 +112,8 @@ function toNew() {
             {{ p.name }}
           </option>
         </select>
-      </label>
-      <label class="field">
+      </div>
+      <div class="field row">
         <span class="label">Artist</span>
         <select
           v-model="artistModel"
@@ -131,8 +131,8 @@ function toNew() {
             {{ a.name }}
           </option>
         </select>
-      </label>
-      <label class="field">
+      </div>
+      <div class="field row">
         <span class="label">Media</span>
         <select
           v-model="mediaModel"
@@ -150,7 +150,7 @@ function toNew() {
             {{ m.name }}
           </option>
         </select>
-      </label>
+      </div>
     </div>
 
     <div class="toolbar">
@@ -190,13 +190,17 @@ function toNew() {
               <span v-else class="thumb-placeholder">No image</span>
             </div>
             <div class="body">
-              <div class="title-row">{{ g.title }}</div>
-              <div class="meta">
-                {{ g.media_name }} / {{ g.release_date }}
-              </div>
-              <div class="owned">
-                <span v-if="g.is_owned" class="badge owned">所持</span>
-                <span v-else class="badge">未所持</span>
+              <div class="row-top">
+                <div class="text">
+                  <div class="title-row">{{ g.title }}</div>
+                  <div class="meta">
+                    {{ g.media_name }} / {{ g.release_date }}
+                  </div>
+                </div>
+                <div class="owned">
+                  <span v-if="g.is_owned" class="badge owned">所持</span>
+                  <span v-else class="badge">未所持</span>
+                </div>
               </div>
             </div>
           </li>
@@ -220,18 +224,25 @@ function toNew() {
 .filters {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.75rem;
   margin-bottom: 1rem;
 }
-.field {
+.field.row {
   display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
 }
-.label {
-  font-size: 0.9rem;
+.field .label {
+  flex-shrink: 0;
+  width: 4.5em;
+  font-size: 0.95rem;
   font-weight: 500;
   opacity: 0.9;
+}
+.field.row .select {
+  flex: 1;
+  min-width: 0;
 }
 .select {
   padding: 0.65rem 0.75rem;
@@ -248,6 +259,8 @@ function toNew() {
   background: var(--color-background-mute);
 }
 .toolbar {
+  display: flex;
+  justify-content: flex-end;
   margin-bottom: 1rem;
 }
 .btn {
@@ -316,6 +329,15 @@ function toNew() {
 }
 .body {
   flex: 1;
+  min-width: 0;
+}
+.row-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+.text {
   min-width: 0;
 }
 .title-row {

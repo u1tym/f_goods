@@ -22,7 +22,12 @@ const form = ref({
   memo: '',
   is_owned: false,
   code_number: '',
+  image_type: null as string | null,
+  image_data: null as string | null,
 })
+/** 画像プレビュー用（data URL）。表示専用 */
+const imagePreview = ref<string | null>(null)
+const imageInput = ref<HTMLInputElement | null>(null)
 const loading = ref(false)
 const saving = ref(false)
 const error = ref('')
@@ -57,7 +62,10 @@ onMounted(async () => {
           memo: g.memo ?? '',
           is_owned: g.is_owned,
           code_number: g.code_number ?? '',
+          image_type: g.image_type ?? null,
+          image_data: g.image_data ?? null,
         }
+        updateImagePreview(g.image_type, g.image_data)
       } catch {
         if (fromList && stateItem) {
           form.value = {
@@ -68,6 +76,8 @@ onMounted(async () => {
             memo: stateItem.memo ?? '',
             is_owned: stateItem.is_owned,
             code_number: stateItem.code_number ?? '',
+            image_type: null,
+            image_data: null,
           }
         } else {
           error.value =
@@ -104,6 +114,8 @@ async function submit() {
     memo: form.value.memo.trim() || null,
     is_owned: form.value.is_owned,
     code_number: form.value.code_number.trim() || null,
+    image_type: form.value.image_type || undefined,
+    image_data: form.value.image_data || undefined,
   }
   try {
     if (isNew.value) {
@@ -121,6 +133,47 @@ async function submit() {
 
 function goBack() {
   router.push('/')
+}
+
+function updateImagePreview(type: string | null | undefined, data: string | null | undefined) {
+  if (!data) {
+    imagePreview.value = null
+    return
+  }
+  if (data.startsWith('data:')) {
+    imagePreview.value = data
+    return
+  }
+  const ext = type === 'image/png' ? 'png' : 'jpeg'
+  imagePreview.value = `data:image/${ext};base64,${data}`
+}
+
+function onImageChange(e: Event) {
+  const input = e.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) {
+    form.value.image_type = null
+    form.value.image_data = null
+    imagePreview.value = null
+    return
+  }
+  const type = file.type === 'image/png' || file.type === 'image/jpeg' ? file.type : 'image/jpeg'
+  const reader = new FileReader()
+  reader.onload = () => {
+    const result = reader.result as string
+    const base64 = result.includes(',') ? result.split(',')[1]! : result
+    form.value.image_type = type
+    form.value.image_data = base64
+    imagePreview.value = `data:${type};base64,${base64}`
+  }
+  reader.readAsDataURL(file)
+}
+
+function clearImage() {
+  form.value.image_type = null
+  form.value.image_data = null
+  imagePreview.value = null
+  if (imageInput.value) imageInput.value.value = ''
 }
 </script>
 
@@ -198,6 +251,29 @@ function goBack() {
             placeholder="品番"
           />
         </label>
+        <div class="field">
+          <span class="label">画像</span>
+          <div class="image-field">
+            <input
+              ref="imageInput"
+              type="file"
+              accept="image/png,image/jpeg,image/jpg"
+              class="input-file"
+              @change="onImageChange"
+            />
+            <div v-if="imagePreview" class="image-preview-wrap">
+              <img :src="imagePreview" alt="プレビュー" class="image-preview" />
+              <button
+                type="button"
+                class="btn btn-small"
+                @click="clearImage"
+              >
+                削除
+              </button>
+            </div>
+            <p v-else class="image-hint">PNG / JPEG（任意）</p>
+          </div>
+        </div>
         <label class="field">
           <span class="label">メモ</span>
           <textarea
@@ -306,5 +382,35 @@ function goBack() {
 .btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+.image-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.input-file {
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+.image-preview-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.image-preview {
+  max-width: 120px;
+  max-height: 120px;
+  border-radius: 8px;
+  object-fit: contain;
+  background: var(--color-background-mute);
+}
+.btn-small {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.9rem;
+}
+.image-hint {
+  font-size: 0.85rem;
+  opacity: 0.7;
+  margin: 0;
 }
 </style>
