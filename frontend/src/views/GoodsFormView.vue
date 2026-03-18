@@ -126,6 +126,18 @@ async function submit() {
     } else {
       await api.updateGoods(goodsId.value, payload)
     }
+    // 一覧を最新状態にするため、選択状態と goods を取り直す
+    if (store.selectedPersonId != null) {
+      store.setSelectedArtist(form.value.artist_id)
+      store.setSelectedMedia(form.value.media_id)
+      const mediaIds =
+        form.value.media_id != null && form.value.media_id !== 0
+          ? [form.value.media_id]
+          : store.relatedMedia.map((m) => m.id)
+      if (mediaIds.length > 0) {
+        await store.fetchRelatedGoods(store.selectedPersonId, mediaIds)
+      }
+    }
     router.push('/')
   } catch (e) {
     error.value = e instanceof Error ? e.message : String(e)

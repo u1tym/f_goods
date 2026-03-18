@@ -26,10 +26,13 @@ function goBack() {
 }
 
 function imageUrl(item: RelatedGoodsItem): string {
-  if (!item.image_data || !item.image_type) return ''
-  const base = item.image_data
-  const type = item.image_type === 'image/png' ? 'png' : 'jpeg'
-  return `data:image/${type};base64,${base}`
+  const data = item.image_data
+  const type = item.image_type
+  if (!data) return ''
+  // API 側が data URL を返す場合と Base64 のみを返す場合の両方に対応
+  if (data.startsWith('data:')) return data
+  const ext = type === 'image/png' ? 'png' : 'jpeg'
+  return `data:image/${ext};base64,${data}`
 }
 
 function toEdit(item: RelatedGoodsItem) {
