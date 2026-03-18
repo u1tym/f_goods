@@ -14,9 +14,9 @@ Vue 3 + TypeScript のスマホ向けフロントエンドです。
 
 ## API の起点
 
-- 設定: `src/config.ts` および環境変数 `VITE_API_BASE_URL`
+- 設定: `src/config.ts` および環境変数 `VITE_GOODSAPI_BASE_URL`
 - 既定値: `http://127.0.0.1:8000`
-- 変更する場合は `.env` に `VITE_API_BASE_URL=https://...` を指定するか、`src/config.ts` を編集してください。
+- 変更する場合は `.env` に `VITE_GOODSAPI_BASE_URL=https://...` を指定するか、`src/config.ts` を編集してください。
 
 ## バックエンド API について
 
