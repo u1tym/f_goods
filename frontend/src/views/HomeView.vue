@@ -389,7 +389,6 @@ async function submitMediaEdit() {
       </div>
 
       <div v-if="isTitleFilterOpen" class="title-filter-open">
-        <span class="filter-label-spacer" aria-hidden="true"></span>
         <input
           v-model="goodsTitleFilter"
           type="text"
