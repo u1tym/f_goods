@@ -425,7 +425,10 @@ async function submitMediaEdit() {
     <template v-else>
       <p v-if="store.loading" class="muted">読込中…</p>
       <template v-else>
-        <div v-if="store.displayGoods.length > 0" class="title-filter">
+        <div
+          class="title-filter"
+          :class="{ 'title-filter-collapsed': isFilterCollapsed }"
+        >
           <input
             v-model="goodsTitleFilter"
             type="text"
@@ -663,10 +666,19 @@ async function submitMediaEdit() {
 }
 
 .title-filter {
+  position: sticky;
+  top: 0;
+  z-index: 11;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   margin: 0 0 1rem 0;
+  padding: 0.75rem 0 0.25rem 0;
+  background: var(--color-background);
+}
+
+.title-filter-collapsed {
+  top: 4.3rem;
 }
 
 .filter-input {
