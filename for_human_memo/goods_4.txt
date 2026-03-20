@@ -1,0 +1,16 @@
+機能追加
+
+設定アイコンをPORTALアイコンの左側に追加
+設定アイコンクリックで、以下のメニューをポップアップ表示
+・person追加・編集
+・artist追加・編集
+・media追加・編集
+
+・person追加は、新たにpersonを追加
+・person編集は、personの名前を変えられる
+・artist追加は、新たにartistを追加
+・artist編集は、artistの名前変更、artistに対応するpersonを追加したり外したりできる
+・media追加は、新たにmediaを追加
+・media編集は、mediaの名前を変えられる
+
+既存のAPIで実現できる？

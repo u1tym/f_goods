@@ -10,6 +10,11 @@ export interface Artist {
   name: string
 }
 
+export interface ArtistDetail {
+  name: string
+  persons: Person[]
+}
+
 export interface Media {
   id: number
   name: string

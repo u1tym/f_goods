@@ -1,16 +1,46 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGoodsStore } from '@/stores/goods'
-import type { RelatedGoodsItem } from '@/types/api'
+import type { RelatedGoodsItem, Artist, Media, Person } from '@/types/api'
+import * as api from '@/api/client'
 import goodsIcon from '../../images/GOODS.jpg'
 import portalIcon from '../../images/PORTAL.jpg'
+import configIcon from '../../images/CONFIG.jpg'
 
 const router = useRouter()
 const store = useGoodsStore()
+const allPersons = ref<Person[]>([])
+const allArtists = ref<Artist[]>([])
+const allMedia = ref<Media[]>([])
+const settingsOpen = ref(false)
+const settingsError = ref('')
+const settingsLoading = ref(false)
+const settingsSaving = ref(false)
+const activeMenu = ref<
+  | ''
+  | 'person-add'
+  | 'person-edit'
+  | 'artist-add'
+  | 'artist-edit'
+  | 'media-add'
+  | 'media-edit'
+>('')
+
+const personAddName = ref('')
+const personEditId = ref<number | null>(null)
+const personEditName = ref('')
+const artistAddName = ref('')
+const artistEditId = ref<number | null>(null)
+const artistEditName = ref('')
+const artistEditPersonIds = ref<number[]>([])
+const mediaAddName = ref('')
+const mediaEditId = ref<number | null>(null)
+const mediaEditName = ref('')
 
 onMounted(async () => {
   await store.fetchPersons()
+  await refreshMasterData()
 })
 
 // Person 用の v-model（空文字 ⇔ null）
@@ -95,6 +125,162 @@ function toEdit(item: RelatedGoodsItem) {
 function toNew() {
   router.push('/goods/new')
 }
+
+async function refreshMasterData() {
+  const [persons, artists, media] = await Promise.all([
+    api.getPersons(),
+    api.getAllArtists(),
+    api.getAllMedia(),
+  ])
+  allPersons.value = persons
+  allArtists.value = artists
+  allMedia.value = media
+}
+
+function openSettings() {
+  settingsOpen.value = true
+  settingsError.value = ''
+  activeMenu.value = ''
+}
+
+function closeSettings() {
+  settingsOpen.value = false
+  settingsError.value = ''
+  activeMenu.value = ''
+}
+
+function setMenu(
+  menu:
+    | 'person-add'
+    | 'person-edit'
+    | 'artist-add'
+    | 'artist-edit'
+    | 'media-add'
+    | 'media-edit'
+) {
+  settingsError.value = ''
+  activeMenu.value = menu
+}
+
+watch(personEditId, (id) => {
+  const selected = allPersons.value.find((p) => p.id === id)
+  personEditName.value = selected?.name ?? ''
+})
+
+watch(mediaEditId, (id) => {
+  const selected = allMedia.value.find((m) => m.id === id)
+  mediaEditName.value = selected?.name ?? ''
+})
+
+watch(artistEditId, async (id) => {
+  artistEditName.value = ''
+  artistEditPersonIds.value = []
+  if (id == null) return
+  settingsLoading.value = true
+  settingsError.value = ''
+  try {
+    const detail = await api.getArtistDetail(id)
+    artistEditName.value = detail.name
+    artistEditPersonIds.value = detail.persons.map((p) => p.id)
+  } catch (e) {
+    settingsError.value = e instanceof Error ? e.message : String(e)
+  } finally {
+    settingsLoading.value = false
+  }
+})
+
+async function submitPersonAdd() {
+  if (!personAddName.value.trim()) return
+  settingsSaving.value = true
+  settingsError.value = ''
+  try {
+    await api.createPerson(personAddName.value.trim())
+    personAddName.value = ''
+    await refreshMasterData()
+    await store.fetchPersons()
+  } catch (e) {
+    settingsError.value = e instanceof Error ? e.message : String(e)
+  } finally {
+    settingsSaving.value = false
+  }
+}
+
+async function submitPersonEdit() {
+  if (personEditId.value == null || !personEditName.value.trim()) return
+  settingsSaving.value = true
+  settingsError.value = ''
+  try {
+    await api.updatePerson(personEditId.value, personEditName.value.trim())
+    await refreshMasterData()
+    await store.fetchPersons()
+  } catch (e) {
+    settingsError.value = e instanceof Error ? e.message : String(e)
+  } finally {
+    settingsSaving.value = false
+  }
+}
+
+async function submitArtistAdd() {
+  if (!artistAddName.value.trim()) return
+  settingsSaving.value = true
+  settingsError.value = ''
+  try {
+    await api.createArtist(artistAddName.value.trim())
+    artistAddName.value = ''
+    await refreshMasterData()
+  } catch (e) {
+    settingsError.value = e instanceof Error ? e.message : String(e)
+  } finally {
+    settingsSaving.value = false
+  }
+}
+
+async function submitArtistEdit() {
+  if (artistEditId.value == null || !artistEditName.value.trim()) return
+  settingsSaving.value = true
+  settingsError.value = ''
+  try {
+    await api.updateArtist(
+      artistEditId.value,
+      artistEditName.value.trim(),
+      artistEditPersonIds.value
+    )
+    await refreshMasterData()
+  } catch (e) {
+    settingsError.value = e instanceof Error ? e.message : String(e)
+  } finally {
+    settingsSaving.value = false
+  }
+}
+
+async function submitMediaAdd() {
+  if (!mediaAddName.value.trim()) return
+  settingsSaving.value = true
+  settingsError.value = ''
+  try {
+    await api.createMedia(mediaAddName.value.trim())
+    mediaAddName.value = ''
+    await refreshMasterData()
+  } catch (e) {
+    settingsError.value = e instanceof Error ? e.message : String(e)
+  } finally {
+    settingsSaving.value = false
+  }
+}
+
+async function submitMediaEdit() {
+  if (mediaEditId.value == null || !mediaEditName.value.trim()) return
+  settingsSaving.value = true
+  settingsError.value = ''
+  try {
+    await api.updateMedia(mediaEditId.value, mediaEditName.value.trim())
+    await refreshMasterData()
+  } catch (e) {
+    settingsError.value = e instanceof Error ? e.message : String(e)
+  } finally {
+    settingsSaving.value = false
+  }
+}
 </script>
 
 <template>
@@ -104,9 +290,19 @@ function toNew() {
         <img :src="goodsIcon" alt="" class="title-icon" />
         GOODS
       </h1>
-      <a href="../m.html" class="portal-link" aria-label="ポータルへ移動">
-        <img :src="portalIcon" alt="" class="portal-icon" />
-      </a>
+      <div class="header-actions">
+        <button
+          type="button"
+          class="icon-button"
+          aria-label="設定メニューを開く"
+          @click="openSettings"
+        >
+          <img :src="configIcon" alt="" class="portal-icon" />
+        </button>
+        <a href="../m.html" class="portal-link" aria-label="ポータルへ移動">
+          <img :src="portalIcon" alt="" class="portal-icon" />
+        </a>
+      </div>
     </div>
 
     <div class="filters">
@@ -222,6 +418,81 @@ function toNew() {
         <p v-else class="muted">該当するGoodsはありません。</p>
       </template>
     </template>
+
+    <div v-if="settingsOpen" class="overlay" @click.self="closeSettings">
+      <div class="settings-modal" role="dialog" aria-modal="true">
+        <div class="settings-header">
+          <h2 class="settings-title">設定メニュー</h2>
+          <button type="button" class="close-btn" @click="closeSettings">×</button>
+        </div>
+
+        <p v-if="settingsError" class="error">{{ settingsError }}</p>
+
+        <div class="menu-grid">
+          <button type="button" class="btn" @click="setMenu('person-add')">person追加</button>
+          <button type="button" class="btn" @click="setMenu('person-edit')">person編集</button>
+          <button type="button" class="btn" @click="setMenu('artist-add')">artist追加</button>
+          <button type="button" class="btn" @click="setMenu('artist-edit')">artist編集</button>
+          <button type="button" class="btn" @click="setMenu('media-add')">media追加</button>
+          <button type="button" class="btn" @click="setMenu('media-edit')">media編集</button>
+        </div>
+
+        <div v-if="activeMenu === 'person-add'" class="editor">
+          <h3 class="editor-title">person追加</h3>
+          <input v-model="personAddName" type="text" class="select" placeholder="人物名" />
+          <button type="button" class="btn primary" :disabled="settingsSaving" @click="submitPersonAdd">保存</button>
+        </div>
+
+        <div v-if="activeMenu === 'person-edit'" class="editor">
+          <h3 class="editor-title">person編集</h3>
+          <select v-model.number="personEditId" class="select">
+            <option :value="null">選択してください</option>
+            <option v-for="p in allPersons" :key="p.id" :value="p.id">{{ p.name }}</option>
+          </select>
+          <input v-model="personEditName" type="text" class="select" placeholder="新しい人物名" />
+          <button type="button" class="btn primary" :disabled="settingsSaving || personEditId == null" @click="submitPersonEdit">保存</button>
+        </div>
+
+        <div v-if="activeMenu === 'artist-add'" class="editor">
+          <h3 class="editor-title">artist追加</h3>
+          <input v-model="artistAddName" type="text" class="select" placeholder="アーティスト名" />
+          <button type="button" class="btn primary" :disabled="settingsSaving" @click="submitArtistAdd">保存</button>
+        </div>
+
+        <div v-if="activeMenu === 'artist-edit'" class="editor">
+          <h3 class="editor-title">artist編集</h3>
+          <select v-model.number="artistEditId" class="select">
+            <option :value="null">選択してください</option>
+            <option v-for="a in allArtists" :key="a.id" :value="a.id">{{ a.name }}</option>
+          </select>
+          <input v-model="artistEditName" type="text" class="select" placeholder="新しいアーティスト名" />
+          <div class="person-checkboxes" v-if="artistEditId != null">
+            <label v-for="p in allPersons" :key="p.id" class="person-checkbox">
+              <input v-model="artistEditPersonIds" :value="p.id" type="checkbox" />
+              <span>{{ p.name }}</span>
+            </label>
+          </div>
+          <p v-if="settingsLoading" class="muted">読込中…</p>
+          <button type="button" class="btn primary" :disabled="settingsSaving || artistEditId == null" @click="submitArtistEdit">保存</button>
+        </div>
+
+        <div v-if="activeMenu === 'media-add'" class="editor">
+          <h3 class="editor-title">media追加</h3>
+          <input v-model="mediaAddName" type="text" class="select" placeholder="媒体名" />
+          <button type="button" class="btn primary" :disabled="settingsSaving" @click="submitMediaAdd">保存</button>
+        </div>
+
+        <div v-if="activeMenu === 'media-edit'" class="editor">
+          <h3 class="editor-title">media編集</h3>
+          <select v-model.number="mediaEditId" class="select">
+            <option :value="null">選択してください</option>
+            <option v-for="m in allMedia" :key="m.id" :value="m.id">{{ m.name }}</option>
+          </select>
+          <input v-model="mediaEditName" type="text" class="select" placeholder="新しい媒体名" />
+          <button type="button" class="btn primary" :disabled="settingsSaving || mediaEditId == null" @click="submitMediaEdit">保存</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -244,11 +515,27 @@ function toNew() {
   justify-content: space-between;
   margin-bottom: 1rem;
 }
+.header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
 .title-icon {
   width: 1.6rem;
   height: 1.6rem;
   object-fit: cover;
   border-radius: 4px;
+}
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
 }
 .portal-link {
   display: inline-flex;
@@ -405,5 +692,70 @@ function toNew() {
 .badge.owned {
   background: hsla(160, 100%, 37%, 0.25);
   color: hsla(160, 100%, 37%, 1);
+}
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 20;
+}
+.settings-modal {
+  width: min(680px, 100%);
+  max-height: 90vh;
+  overflow: auto;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 1rem;
+}
+.settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.settings-title {
+  margin: 0;
+  font-size: 1.1rem;
+}
+.close-btn {
+  border: none;
+  background: transparent;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--color-text);
+}
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+.editor {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.editor-title {
+  margin: 0;
+  font-size: 1rem;
+}
+.person-checkboxes {
+  max-height: 180px;
+  overflow: auto;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 0.5rem;
+}
+.person-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0;
 }
 </style>

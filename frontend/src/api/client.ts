@@ -2,6 +2,7 @@ import { API_BASE_URL } from '@/config'
 import type {
   Person,
   Artist,
+  ArtistDetail,
   Media,
   RelatedGoodsItem,
   GoodsDetail,
@@ -35,6 +36,20 @@ async function request<T>(
 /** API-1: person一覧 */
 export function getPersons(): Promise<Person[]> {
   return request<Person[]>('/persons')
+}
+
+export function createPerson(name: string): Promise<Person> {
+  return request<Person>('/persons', {
+    method: 'POST',
+    json: { name },
+  })
+}
+
+export function updatePerson(id: number, name: string): Promise<Person> {
+  return request<Person>(`/persons/${id}`, {
+    method: 'PUT',
+    json: { id, name },
+  })
 }
 
 /** API-4: 選択したpersonに紐づくartists + 一覧用 */
@@ -116,7 +131,43 @@ export function getAllArtists(): Promise<Artist[]> {
   return request<Artist[]>('/artists')
 }
 
+export function getArtistDetail(id: number): Promise<ArtistDetail> {
+  return request<ArtistDetail>(`/artists/${id}`)
+}
+
+export function createArtist(name: string): Promise<Artist> {
+  return request<Artist>('/artists', {
+    method: 'POST',
+    json: { name },
+  })
+}
+
+export function updateArtist(
+  id: number,
+  name: string,
+  personIds: number[]
+): Promise<Artist> {
+  return request<Artist>(`/artists/${id}`, {
+    method: 'PUT',
+    json: { id, name, person_ids: personIds },
+  })
+}
+
 /** 一覧用: 全media */
 export function getAllMedia(): Promise<Media[]> {
   return request<Media[]>('/media')
+}
+
+export function createMedia(name: string): Promise<Media> {
+  return request<Media>('/media', {
+    method: 'POST',
+    json: { name },
+  })
+}
+
+export function updateMedia(id: number, name: string): Promise<Media> {
+  return request<Media>(`/media/${id}`, {
+    method: 'PUT',
+    json: { id, name },
+  })
 }
