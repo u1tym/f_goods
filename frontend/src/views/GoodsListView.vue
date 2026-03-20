@@ -75,11 +75,6 @@ function toNew() {
     <template v-else>
       <p v-if="loading" class="muted">読込中…</p>
       <template v-else>
-        <div class="toolbar">
-          <button type="button" class="btn primary" @click="toNew">
-            新規追加
-          </button>
-        </div>
         <ul v-if="displayGoods.length > 0" class="goods-list">
           <li
             v-for="g in displayGoods"
@@ -114,6 +109,10 @@ function toNew() {
         <p v-else class="muted">該当するGoodsはありません。</p>
       </template>
     </template>
+
+    <button type="button" class="fab-add" aria-label="新規追加" @click="toNew">
+      +
+    </button>
   </div>
 </template>
 
@@ -176,24 +175,6 @@ function toNew() {
   color: var(--color-text);
   opacity: 0.7;
   margin: 0.5rem 0;
-}
-.toolbar {
-  margin-bottom: 1rem;
-}
-.btn {
-  padding: 0.6rem 1rem;
-  border-radius: 8px;
-  font-size: 1rem;
-  cursor: pointer;
-  touch-action: manipulation;
-  border: 1px solid var(--color-border);
-  background: var(--color-background-mute);
-  color: var(--color-text);
-}
-.btn.primary {
-  background: hsla(160, 100%, 37%, 0.2);
-  border-color: hsla(160, 100%, 37%, 0.5);
-  color: hsla(160, 100%, 37%, 1);
 }
 .goods-list {
   list-style: none;
@@ -262,5 +243,24 @@ function toNew() {
 .badge.owned {
   background: hsla(160, 100%, 37%, 0.25);
   color: hsla(160, 100%, 37%, 1);
+}
+.fab-add {
+  position: fixed;
+  right: 1rem;
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0));
+  width: 3.25rem;
+  height: 3.25rem;
+  border: none;
+  border-radius: 999px;
+  font-size: 2rem;
+  line-height: 1;
+  color: #fff;
+  background: hsla(160, 100%, 37%, 0.6);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  z-index: 15;
+}
+.fab-add:active {
+  opacity: 0.9;
 }
 </style>

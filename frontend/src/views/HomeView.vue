@@ -363,16 +363,6 @@ async function submitMediaEdit() {
       </div>
     </div>
 
-    <div class="toolbar">
-      <button
-        type="button"
-        class="btn primary"
-        @click="toNew"
-      >
-        新規追加
-      </button>
-    </div>
-
     <p v-if="store.error" class="error">{{ store.error }}</p>
     <template v-else-if="!store.isSelectionConfirmed">
       <p class="muted">Person・Artist・Mediaを選択すると一覧が表示されます。</p>
@@ -493,6 +483,10 @@ async function submitMediaEdit() {
         </div>
       </div>
     </div>
+
+    <button type="button" class="fab-add" aria-label="新規追加" @click="toNew">
+      +
+    </button>
   </div>
 </template>
 
@@ -586,11 +580,6 @@ async function submitMediaEdit() {
   opacity: 0.6;
   cursor: not-allowed;
   background: var(--color-background-mute);
-}
-.toolbar {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 1rem;
 }
 .btn {
   padding: 0.6rem 1rem;
@@ -757,5 +746,24 @@ async function submitMediaEdit() {
   align-items: center;
   gap: 0.4rem;
   padding: 0.2rem 0;
+}
+.fab-add {
+  position: fixed;
+  right: 1rem;
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0));
+  width: 3.25rem;
+  height: 3.25rem;
+  border: none;
+  border-radius: 999px;
+  font-size: 2rem;
+  line-height: 1;
+  color: #fff;
+  background: hsla(160, 100%, 37%, 0.6);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  z-index: 15;
+}
+.fab-add:active {
+  opacity: 0.9;
 }
 </style>
