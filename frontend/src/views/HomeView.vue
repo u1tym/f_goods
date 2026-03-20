@@ -55,6 +55,17 @@ const filterSummaryText = computed(() => {
   return `${personName} / ${artistName} / ${mediaName}`
 })
 
+// 一覧表示後の「タイトル文字列でさらに絞り込み」
+const goodsTitleFilter = ref('')
+const filteredDisplayGoods = computed(() => {
+  const term = goodsTitleFilter.value.trim()
+  if (!term) return store.displayGoods
+  const lowered = term.toLowerCase()
+  return store.displayGoods.filter((g) =>
+    (g.title ?? '').toLowerCase().includes(lowered)
+  )
+})
+
 onMounted(async () => {
   await store.fetchPersons()
   await refreshMasterData()
@@ -221,6 +232,7 @@ watch(
     // 片方でも未選択になるなら再度選択できるように表示
     if (!confirmed) {
       isFilterCollapsed.value = false
+      goodsTitleFilter.value = ''
     }
   }
 )
@@ -413,9 +425,30 @@ async function submitMediaEdit() {
     <template v-else>
       <p v-if="store.loading" class="muted">読込中…</p>
       <template v-else>
-        <ul v-if="store.displayGoods.length > 0" class="goods-list">
+        <div v-if="store.displayGoods.length > 0" class="title-filter">
+          <input
+            v-model="goodsTitleFilter"
+            type="text"
+            class="filter-input"
+            placeholder="タイトルで絞り込み"
+            aria-label="タイトルで絞り込み"
+          />
+          <button
+            v-if="goodsTitleFilter.trim().length > 0"
+            type="button"
+            class="filter-clear"
+            @click="goodsTitleFilter = ''"
+          >
+            解除
+          </button>
+        </div>
+
+        <ul
+          v-if="filteredDisplayGoods.length > 0"
+          class="goods-list"
+        >
           <li
-            v-for="g in store.displayGoods"
+            v-for="g in filteredDisplayGoods"
             :key="g.goods_id"
             class="goods-item"
             role="button"
@@ -448,7 +481,9 @@ async function submitMediaEdit() {
             </div>
           </li>
         </ul>
-        <p v-else class="muted">該当するGoodsはありません。</p>
+        <p v-else class="muted">
+          {{ store.displayGoods.length > 0 ? '絞り込み条件に一致するGoodsはありません。' : '該当するGoodsはありません。' }}
+        </p>
       </template>
     </template>
 
@@ -625,6 +660,38 @@ async function submitMediaEdit() {
   flex-shrink: 0;
   font-size: 1.1rem;
   opacity: 0.9;
+}
+
+.title-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1rem 0;
+}
+
+.filter-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 1rem;
+  background: var(--color-background);
+  color: var(--color-text);
+  min-height: 44px;
+}
+
+.filter-clear {
+  border: none;
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  background: var(--color-background-mute);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  touch-action: manipulation;
+  font-size: 1rem;
+  white-space: nowrap;
 }
 .field.row {
   display: flex;
