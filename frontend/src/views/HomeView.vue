@@ -18,6 +18,7 @@ const settingsError = ref('')
 const settingsLoading = ref(false)
 const settingsSaving = ref(false)
 const isFilterCollapsed = ref(false)
+const isTitleFilterOpen = ref(false)
 const activeMenu = ref<
   | ''
   | 'person-add'
@@ -179,6 +180,13 @@ function closeSettings() {
 
 function expandFilters() {
   isFilterCollapsed.value = false
+  isTitleFilterOpen.value = false
+  goodsTitleFilter.value = ''
+}
+
+function toggleTitleFilter() {
+  // 押したときだけ文字入力を見せる（一覧表示中は用語を見せない）
+  isTitleFilterOpen.value = !isTitleFilterOpen.value
 }
 
 function setMenu(
@@ -233,6 +241,7 @@ watch(
     if (!confirmed) {
       isFilterCollapsed.value = false
       goodsTitleFilter.value = ''
+      isTitleFilterOpen.value = false
     }
   }
 )
@@ -353,11 +362,49 @@ async function submitMediaEdit() {
       </div>
     </div>
 
-    <div v-if="store.isSelectionConfirmed && isFilterCollapsed" class="filters-sticky">
-      <button type="button" class="filters-summary" @click="expandFilters">
+    <div
+      v-if="store.isSelectionConfirmed && isFilterCollapsed"
+      class="filters-sticky"
+    >
+      <div class="filters-bar">
         <span class="filters-summary-text">{{ filterSummaryText }}</span>
-        <span class="filters-summary-icon" aria-hidden="true">⤢</span>
-      </button>
+
+        <button
+          type="button"
+          class="filter-toggle-button"
+          aria-label="タイトルで絞り込み"
+          @click.stop="toggleTitleFilter"
+        >
+          ⌕
+        </button>
+
+        <button
+          type="button"
+          class="expand-toggle-button"
+          aria-label="選択に戻る"
+          @click="expandFilters"
+        >
+          ⤢
+        </button>
+      </div>
+
+      <div v-if="isTitleFilterOpen" class="title-filter-open">
+        <input
+          v-model="goodsTitleFilter"
+          type="text"
+          class="filter-input"
+          placeholder="タイトルで絞り込み"
+          aria-label="タイトルで絞り込み"
+        />
+        <button
+          v-if="goodsTitleFilter.trim().length > 0"
+          type="button"
+          class="filter-clear"
+          @click="goodsTitleFilter = ''"
+        >
+          解除
+        </button>
+      </div>
     </div>
 
     <div v-else class="filters">
@@ -425,27 +472,6 @@ async function submitMediaEdit() {
     <template v-else>
       <p v-if="store.loading" class="muted">読込中…</p>
       <template v-else>
-        <div
-          class="title-filter"
-          :class="{ 'title-filter-collapsed': isFilterCollapsed }"
-        >
-          <input
-            v-model="goodsTitleFilter"
-            type="text"
-            class="filter-input"
-            placeholder="タイトルで絞り込み"
-            aria-label="タイトルで絞り込み"
-          />
-          <button
-            v-if="goodsTitleFilter.trim().length > 0"
-            type="button"
-            class="filter-clear"
-            @click="goodsTitleFilter = ''"
-          >
-            解除
-          </button>
-        </div>
-
         <ul
           v-if="filteredDisplayGoods.length > 0"
           class="goods-list"
@@ -640,6 +666,16 @@ async function submitMediaEdit() {
   padding-top: env(safe-area-inset-top, 0);
   background: var(--color-background);
 }
+.filters-bar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  background: var(--color-background-mute);
+}
 .filters-summary {
   width: 100%;
   display: flex;
@@ -653,6 +689,8 @@ async function submitMediaEdit() {
   cursor: pointer;
 }
 .filters-summary-text {
+  flex: 1;
+  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -663,6 +701,33 @@ async function submitMediaEdit() {
   flex-shrink: 0;
   font-size: 1.1rem;
   opacity: 0.9;
+}
+
+.filter-toggle-button,
+.expand-toggle-button {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  color: var(--color-text);
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+.filter-toggle-button:active,
+.expand-toggle-button:active {
+  opacity: 0.7;
+}
+
+.title-filter-open {
+  margin-top: 0.5rem;
+  padding: 0 0.75rem 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .title-filter {
