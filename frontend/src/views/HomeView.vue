@@ -189,6 +189,41 @@ function toggleTitleFilter() {
   isTitleFilterOpen.value = !isTitleFilterOpen.value
 }
 
+function snapshotMainSelection() {
+  return {
+    personId: store.selectedPersonId,
+    artistId: store.selectedArtistId,
+    mediaId: store.selectedMediaId,
+  }
+}
+
+async function restoreMainSelection(prev: {
+  personId: number | null
+  artistId: number | null | undefined
+  mediaId: number | null | undefined
+}) {
+  store.selectedPersonId = prev.personId
+  store.selectedArtistId = prev.artistId
+  store.selectedMediaId = prev.mediaId
+
+  // もし person を選んでいるなら、関連を再取得して select と一覧計算がズレないようにする
+  if (prev.personId != null) {
+    await store.fetchRelatedArtists(prev.personId)
+    await store.fetchRelatedMedia(prev.personId)
+
+    const confirmed =
+      prev.personId != null &&
+      prev.artistId !== undefined &&
+      prev.mediaId !== undefined
+
+    if (confirmed) {
+      const mediaIds =
+        prev.mediaId == null ? store.relatedMedia.map((m) => m.id) : [prev.mediaId]
+      await store.fetchRelatedGoods(prev.personId, mediaIds)
+    }
+  }
+}
+
 function setMenu(
   menu:
     | 'person-add'
@@ -200,6 +235,25 @@ function setMenu(
 ) {
   settingsError.value = ''
   activeMenu.value = menu
+
+  // 次に同じメニューを開いても前回の入力/選択が残らないように初期化
+  if (menu === 'person-add') {
+    personAddName.value = ''
+  } else if (menu === 'person-edit') {
+    personEditId.value = null
+    personEditName.value = ''
+  } else if (menu === 'artist-add') {
+    artistAddName.value = ''
+  } else if (menu === 'artist-edit') {
+    artistEditId.value = null
+    artistEditName.value = ''
+    artistEditPersonIds.value = []
+  } else if (menu === 'media-add') {
+    mediaAddName.value = ''
+  } else if (menu === 'media-edit') {
+    mediaEditId.value = null
+    mediaEditName.value = ''
+  }
 }
 
 watch(personEditId, (id) => {
@@ -248,6 +302,7 @@ watch(
 
 async function submitPersonAdd() {
   if (!personAddName.value.trim()) return
+  const prevSelection = snapshotMainSelection()
   settingsSaving.value = true
   settingsError.value = ''
   try {
@@ -255,6 +310,7 @@ async function submitPersonAdd() {
     personAddName.value = ''
     await refreshMasterData()
     await store.fetchPersons()
+    await restoreMainSelection(prevSelection)
   } catch (e) {
     settingsError.value = e instanceof Error ? e.message : String(e)
   } finally {
@@ -264,12 +320,16 @@ async function submitPersonAdd() {
 
 async function submitPersonEdit() {
   if (personEditId.value == null || !personEditName.value.trim()) return
+  const prevSelection = snapshotMainSelection()
   settingsSaving.value = true
   settingsError.value = ''
   try {
     await api.updatePerson(personEditId.value, personEditName.value.trim())
     await refreshMasterData()
     await store.fetchPersons()
+    await restoreMainSelection(prevSelection)
+    personEditId.value = null
+    personEditName.value = ''
   } catch (e) {
     settingsError.value = e instanceof Error ? e.message : String(e)
   } finally {
@@ -279,12 +339,14 @@ async function submitPersonEdit() {
 
 async function submitArtistAdd() {
   if (!artistAddName.value.trim()) return
+  const prevSelection = snapshotMainSelection()
   settingsSaving.value = true
   settingsError.value = ''
   try {
     await api.createArtist(artistAddName.value.trim())
     artistAddName.value = ''
     await refreshMasterData()
+    await restoreMainSelection(prevSelection)
   } catch (e) {
     settingsError.value = e instanceof Error ? e.message : String(e)
   } finally {
@@ -294,6 +356,7 @@ async function submitArtistAdd() {
 
 async function submitArtistEdit() {
   if (artistEditId.value == null || !artistEditName.value.trim()) return
+  const prevSelection = snapshotMainSelection()
   settingsSaving.value = true
   settingsError.value = ''
   try {
@@ -303,6 +366,10 @@ async function submitArtistEdit() {
       artistEditPersonIds.value
     )
     await refreshMasterData()
+    await restoreMainSelection(prevSelection)
+    artistEditId.value = null
+    artistEditName.value = ''
+    artistEditPersonIds.value = []
   } catch (e) {
     settingsError.value = e instanceof Error ? e.message : String(e)
   } finally {
@@ -312,12 +379,14 @@ async function submitArtistEdit() {
 
 async function submitMediaAdd() {
   if (!mediaAddName.value.trim()) return
+  const prevSelection = snapshotMainSelection()
   settingsSaving.value = true
   settingsError.value = ''
   try {
     await api.createMedia(mediaAddName.value.trim())
     mediaAddName.value = ''
     await refreshMasterData()
+    await restoreMainSelection(prevSelection)
   } catch (e) {
     settingsError.value = e instanceof Error ? e.message : String(e)
   } finally {
@@ -327,11 +396,15 @@ async function submitMediaAdd() {
 
 async function submitMediaEdit() {
   if (mediaEditId.value == null || !mediaEditName.value.trim()) return
+  const prevSelection = snapshotMainSelection()
   settingsSaving.value = true
   settingsError.value = ''
   try {
     await api.updateMedia(mediaEditId.value, mediaEditName.value.trim())
     await refreshMasterData()
+    await restoreMainSelection(prevSelection)
+    mediaEditId.value = null
+    mediaEditName.value = ''
   } catch (e) {
     settingsError.value = e instanceof Error ? e.message : String(e)
   } finally {
