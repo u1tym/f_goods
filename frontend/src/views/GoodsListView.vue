@@ -3,6 +3,8 @@ import { onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGoodsStore } from '@/stores/goods'
 import type { RelatedGoodsItem } from '@/types/api'
+import goodsIcon from '../../images/GOODS.jpg'
+import portalIcon from '../../images/PORTAL.jpg'
 
 const router = useRouter()
 const store = useGoodsStore()
@@ -56,7 +58,15 @@ function toNew() {
         ← 戻る
       </button>
     </nav>
-    <h1 class="title">Goods一覧</h1>
+    <div class="header">
+      <h1 class="title">
+        <img :src="goodsIcon" alt="" class="title-icon" />
+        GOODS
+      </h1>
+      <a href="../m.html" class="portal-link" aria-label="ポータルへ移動">
+        <img :src="portalIcon" alt="" class="portal-icon" />
+      </a>
+    </div>
 
     <p v-if="error" class="error">{{ error }}</p>
     <template v-else-if="!isSelectionConfirmed">
@@ -127,8 +137,36 @@ function toNew() {
   touch-action: manipulation;
 }
 .title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   font-size: 1.35rem;
   margin-bottom: 0.5rem;
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+.title-icon {
+  width: 1.6rem;
+  height: 1.6rem;
+  object-fit: cover;
+  border-radius: 4px;
+}
+.portal-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+}
+.portal-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
 }
 .error {
   color: #c00;

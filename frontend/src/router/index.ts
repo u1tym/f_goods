@@ -8,7 +8,7 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView,
-      meta: { title: 'Goods管理' },
+      meta: { title: 'GOODS' },
     },
     {
       path: '/goods/new',
@@ -26,7 +26,7 @@ const router = createRouter({
 })
 
 router.afterEach((to) => {
-  const title = (to.meta?.title as string) ?? 'Goods管理'
+  const title = (to.meta?.title as string) ?? 'GOODS'
   document.title = title
 })
 

@@ -3,6 +3,8 @@ import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGoodsStore } from '@/stores/goods'
 import type { RelatedGoodsItem } from '@/types/api'
+import goodsIcon from '../../images/GOODS.jpg'
+import portalIcon from '../../images/PORTAL.jpg'
 
 const router = useRouter()
 const store = useGoodsStore()
@@ -97,7 +99,15 @@ function toNew() {
 
 <template>
   <div class="page">
-    <h1 class="title">Goods管理</h1>
+    <div class="header">
+      <h1 class="title">
+        <img :src="goodsIcon" alt="" class="title-icon" />
+        GOODS
+      </h1>
+      <a href="../m.html" class="portal-link" aria-label="ポータルへ移動">
+        <img :src="portalIcon" alt="" class="portal-icon" />
+      </a>
+    </div>
 
     <div class="filters">
       <div class="field row">
@@ -222,8 +232,36 @@ function toNew() {
   padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0));
 }
 .title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   font-size: 1.35rem;
   margin-bottom: 1rem;
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.title-icon {
+  width: 1.6rem;
+  height: 1.6rem;
+  object-fit: cover;
+  border-radius: 4px;
+}
+.portal-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+}
+.portal-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
 }
 .filters {
   display: flex;
