@@ -3,8 +3,8 @@ import { onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGoodsStore } from '@/stores/goods'
 import type { RelatedGoodsItem } from '@/types/api'
-import goodsIcon from '../../images/GOODS.jpg'
-import portalIcon from '../../images/PORTAL.jpg'
+import goodsIcon from '../../images/GOODS.png'
+import portalIcon from '../../images/PORTAL.png'
 
 const router = useRouter()
 const store = useGoodsStore()

@@ -4,9 +4,9 @@ import { useRouter } from 'vue-router'
 import { useGoodsStore } from '@/stores/goods'
 import type { RelatedGoodsItem, Artist, Media, Person } from '@/types/api'
 import * as api from '@/api/client'
-import goodsIcon from '../../images/GOODS.jpg'
-import portalIcon from '../../images/PORTAL.jpg'
-import configIcon from '../../images/CONFIG.jpg'
+import goodsIcon from '../../images/GOODS.png'
+import portalIcon from '../../images/PORTAL.png'
+import configIcon from '../../images/CONFIG.png'
 
 const router = useRouter()
 const store = useGoodsStore()
@@ -416,23 +416,21 @@ async function submitMediaEdit() {
 <template>
   <div class="page">
     <div class="header">
-      <h1 class="title">
-        <img :src="goodsIcon" alt="" class="title-icon" />
-        GOODS
-      </h1>
-      <div class="header-actions">
-        <button
-          type="button"
-          class="icon-button"
-          aria-label="設定メニューを開く"
-          @click="openSettings"
-        >
-          <img :src="configIcon" alt="" class="portal-icon" />
-        </button>
-        <a href="../m.html" class="portal-link" aria-label="ポータルへ移動">
-          <img :src="portalIcon" alt="" class="portal-icon" />
+      <div class="header-left">
+        <a href="../m.html" class="header-circle-link" aria-label="ポータルへ移動">
+          <img :src="portalIcon" alt="" class="header-circle-icon" />
         </a>
+        <img :src="goodsIcon" alt="" class="header-circle-icon" />
+        <h1 class="header-title">GOODS</h1>
       </div>
+      <button
+        type="button"
+        class="header-settings-button"
+        aria-label="設定メニューを開く"
+        @click="openSettings"
+      >
+        <img :src="configIcon" alt="" class="header-settings-icon" />
+      </button>
     </div>
 
     <div
@@ -676,53 +674,57 @@ async function submitMediaEdit() {
   padding-top: env(safe-area-inset-top, 0);
   padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0));
 }
-.title {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 1.35rem;
-  margin-bottom: 1rem;
-}
 .header {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   margin-bottom: 1rem;
 }
-.header-actions {
+.header-left {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.55rem;
 }
-.title-icon {
-  width: 1.6rem;
-  height: 1.6rem;
-  object-fit: cover;
-  border-radius: 4px;
+.header-title {
+  margin: 0;
+  color: #126c39;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
 }
-.icon-button {
+.header-circle-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.header-circle-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  object-fit: cover;
+}
+.header-settings-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
   padding: 0;
   border: none;
   background: transparent;
   cursor: pointer;
+  border-radius: 999px;
+  overflow: hidden;
 }
-.portal-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-}
-.portal-icon {
+.header-settings-icon {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 4px;
+  border-radius: 999px;
 }
 .filters {
   display: flex;
