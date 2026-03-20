@@ -672,7 +672,7 @@ async function submitMediaEdit() {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.65rem 0;
+  padding: 0.65rem 0.5rem;
   border-radius: 12px;
   border: 1px solid var(--color-border);
   background: var(--color-background-mute);
