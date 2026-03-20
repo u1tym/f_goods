@@ -389,6 +389,7 @@ async function submitMediaEdit() {
       </div>
 
       <div v-if="isTitleFilterOpen" class="title-filter-open">
+        <span class="filter-label-spacer" aria-hidden="true"></span>
         <input
           v-model="goodsTitleFilter"
           type="text"
@@ -671,7 +672,7 @@ async function submitMediaEdit() {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.65rem 0.75rem;
+  padding: 0.65rem 0;
   border-radius: 12px;
   border: 1px solid var(--color-border);
   background: var(--color-background-mute);
@@ -706,14 +707,14 @@ async function submitMediaEdit() {
 .filter-toggle-button,
 .expand-toggle-button {
   flex-shrink: 0;
-  width: 2rem;
-  height: 2rem;
+  width: 2.35rem;
+  height: 2.35rem;
   border: none;
   border-radius: 999px;
   background: transparent;
   cursor: pointer;
   color: var(--color-text);
-  font-size: 1.1rem;
+  font-size: 1.35rem;
   opacity: 0.9;
 }
 
@@ -724,10 +725,17 @@ async function submitMediaEdit() {
 
 .title-filter-open {
   margin-top: 0.5rem;
-  padding: 0 0.75rem 0.75rem;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 0 0.75rem 0;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.filter-label-spacer {
+  width: 4.5em;
+  flex-shrink: 0;
 }
 
 .title-filter {
