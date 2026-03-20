@@ -17,6 +17,7 @@ const settingsOpen = ref(false)
 const settingsError = ref('')
 const settingsLoading = ref(false)
 const settingsSaving = ref(false)
+const isFilterCollapsed = ref(false)
 const activeMenu = ref<
   | ''
   | 'person-add'
@@ -37,6 +38,22 @@ const artistEditPersonIds = ref<number[]>([])
 const mediaAddName = ref('')
 const mediaEditId = ref<number | null>(null)
 const mediaEditName = ref('')
+
+const filterSummaryText = computed(() => {
+  const personName = store.selectedPerson?.name ?? 'Person'
+
+  const artistName =
+    store.selectedArtistId === null
+      ? 'すべて'
+      : store.selectedArtist?.name ?? 'Artist'
+
+  const mediaName =
+    store.selectedMediaId === null
+      ? 'すべて'
+      : store.selectedMedia?.name ?? 'Media'
+
+  return `${personName} / ${artistName} / ${mediaName}`
+})
 
 onMounted(async () => {
   await store.fetchPersons()
@@ -149,6 +166,10 @@ function closeSettings() {
   activeMenu.value = ''
 }
 
+function expandFilters() {
+  isFilterCollapsed.value = false
+}
+
 function setMenu(
   menu:
     | 'person-add'
@@ -188,6 +209,21 @@ watch(artistEditId, async (id) => {
     settingsLoading.value = false
   }
 })
+
+watch(
+  () => store.isSelectionConfirmed,
+  (confirmed, prevConfirmed) => {
+    // 初めて3つ揃ったタイミングで縮小表示にする
+    if (confirmed && prevConfirmed === false) {
+      isFilterCollapsed.value = true
+      return
+    }
+    // 片方でも未選択になるなら再度選択できるように表示
+    if (!confirmed) {
+      isFilterCollapsed.value = false
+    }
+  }
+)
 
 async function submitPersonAdd() {
   if (!personAddName.value.trim()) return
@@ -305,7 +341,14 @@ async function submitMediaEdit() {
       </div>
     </div>
 
-    <div class="filters">
+    <div v-if="store.isSelectionConfirmed && isFilterCollapsed" class="filters-sticky">
+      <button type="button" class="filters-summary" @click="expandFilters">
+        <span class="filters-summary-text">{{ filterSummaryText }}</span>
+        <span class="filters-summary-icon" aria-hidden="true">⤢</span>
+      </button>
+    </div>
+
+    <div v-else class="filters">
       <div class="field row">
         <span class="label">Person</span>
         <select
@@ -549,6 +592,39 @@ async function submitMediaEdit() {
   flex-direction: column;
   gap: 0.75rem;
   margin-bottom: 1rem;
+}
+
+.filters-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  margin-bottom: 1rem;
+  padding-top: env(safe-area-inset-top, 0);
+  background: var(--color-background);
+}
+.filters-summary {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  background: var(--color-background-mute);
+  cursor: pointer;
+}
+.filters-summary-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+.filters-summary-icon {
+  flex-shrink: 0;
+  font-size: 1.1rem;
+  opacity: 0.9;
 }
 .field.row {
   display: flex;
