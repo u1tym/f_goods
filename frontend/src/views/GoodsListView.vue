@@ -239,6 +239,7 @@ function toNew() {
   font-size: 0.8rem;
   border-radius: 4px;
   background: var(--color-background-mute);
+  white-space: nowrap;
 }
 .badge.owned {
   background: hsla(160, 100%, 37%, 0.25);
