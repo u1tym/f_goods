@@ -479,14 +479,13 @@ async function submitMediaEdit() {
     </div>
 
     <div v-else class="filters">
-      <div class="field row">
-        <span class="label">Person</span>
+      <div class="field">
         <select
           v-model="personModel"
-          class="select"
-          aria-label="人物を選択"
+          class="select select-full"
+          aria-label="Person"
         >
-          <option value="">選択してください</option>
+          <option value="">Person</option>
           <option
             v-for="p in store.persons"
             :key="p.id"
@@ -496,15 +495,14 @@ async function submitMediaEdit() {
           </option>
         </select>
       </div>
-      <div class="field row">
-        <span class="label">Artist</span>
+      <div class="field">
         <select
           v-model="artistModel"
-          class="select"
+          class="select select-full"
           :disabled="!isArtistEnabled"
-          aria-label="アーティストを選択"
+          aria-label="Artist"
         >
-          <option value="">選択してください</option>
+          <option value="">Artist</option>
           <option value="all">すべて</option>
           <option
             v-for="a in store.relatedArtists"
@@ -515,15 +513,14 @@ async function submitMediaEdit() {
           </option>
         </select>
       </div>
-      <div class="field row">
-        <span class="label">Media</span>
+      <div class="field">
         <select
           v-model="mediaModel"
-          class="select"
+          class="select select-full"
           :disabled="!isMediaEnabled"
-          aria-label="媒体を選択"
+          aria-label="Media"
         >
-          <option value="">選択してください</option>
+          <option value="">Media</option>
           <option value="all">すべて</option>
           <option
             v-for="m in store.relatedMedia"
@@ -537,10 +534,7 @@ async function submitMediaEdit() {
     </div>
 
     <p v-if="store.error" class="error">{{ store.error }}</p>
-    <template v-else-if="!store.isSelectionConfirmed">
-      <p class="muted">Person・Artist・Mediaを選択すると一覧が表示されます。</p>
-    </template>
-    <template v-else>
+    <template v-else-if="store.isSelectionConfirmed">
       <p v-if="store.loading" class="muted">読込中…</p>
       <template v-else>
         <ul
@@ -671,7 +665,7 @@ async function submitMediaEdit() {
 <style scoped>
 .page {
   padding: 1rem;
-  padding-top: env(safe-area-inset-top, 0);
+  padding-top: calc(0.6rem + env(safe-area-inset-top, 0));
   padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0));
 }
 .header {
@@ -682,15 +676,17 @@ async function submitMediaEdit() {
 }
 .header-left {
   display: inline-flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 0.55rem;
 }
 .header-title {
   margin: 0;
+  padding: 0;
   color: #126c39;
   font-size: 26px;
   font-weight: 700;
   line-height: 1;
+  display: block;
 }
 .header-circle-link {
   display: inline-flex;
@@ -807,27 +803,6 @@ async function submitMediaEdit() {
   gap: 0.5rem;
 }
 
-.filter-label-spacer {
-  width: 4.5em;
-  flex-shrink: 0;
-}
-
-.title-filter {
-  position: sticky;
-  top: 0;
-  z-index: 11;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0 0 1rem 0;
-  padding: 0.75rem 0 0.25rem 0;
-  background: var(--color-background);
-}
-
-.title-filter-collapsed {
-  top: 4.3rem;
-}
-
 .filter-input {
   flex: 1;
   min-width: 0;
@@ -852,22 +827,13 @@ async function submitMediaEdit() {
   font-size: 1rem;
   white-space: nowrap;
 }
-.field.row {
+.field {
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.35rem;
 }
-.field .label {
-  flex-shrink: 0;
-  width: 4.5em;
-  font-size: 0.95rem;
-  font-weight: 500;
-  opacity: 0.9;
-}
-.field.row .select {
-  flex: 1;
-  min-width: 0;
+.select-full {
+  width: 100%;
 }
 .select {
   padding: 0.65rem 0.75rem;
