@@ -63,7 +63,7 @@ function toNew() {
         <img :src="goodsIcon" alt="" class="title-icon" />
         GOODS
       </h1>
-      <a href="../m.html" class="portal-link" aria-label="ポータルへ移動">
+      <a href="/mobile/login/#/menu" class="portal-link" aria-label="ポータルへ移動">
         <img :src="portalIcon" alt="" class="portal-icon" />
       </a>
     </div>

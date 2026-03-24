@@ -417,7 +417,7 @@ async function submitMediaEdit() {
   <div class="page">
     <div class="header">
       <div class="header-left">
-        <a href="../m.html" class="header-circle-link" aria-label="ポータルへ移動">
+        <a href="/mobile/login/#/menu" class="header-circle-link" aria-label="ポータルへ移動">
           <img :src="portalIcon" alt="" class="header-circle-icon" />
         </a>
         <img :src="goodsIcon" alt="" class="header-circle-icon" />
