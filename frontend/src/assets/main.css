@@ -9,6 +9,15 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* iOS: 縦方向のバウンス／オーバースクロール抑止（スクロールはマウント直下の #app に集約） */
+body > #app {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: none;
+}
+
 a,
 .green {
   text-decoration: none;
